@@ -10,4 +10,12 @@ export default defineConfig({
       "@": path.resolve(__dirname, "./src"),
     },
   },
+  test: {
+    environment: "jsdom",
+    globals: true,
+    coverage: {
+      include: ["src/**/*"],
+    },
+    setupFiles: ["src/test/setup.js"],
+  },
 });
