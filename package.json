@@ -20,6 +20,7 @@
     "axios-mock-adapter": "^1.22.0",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
+    "dotenv": "^16.4.5",
     "jest": "^29.7.0",
     "jsdom": "^24.1.0",
     "lucide-react": "^0.401.0",
@@ -28,6 +29,7 @@
     "react-hook-form": "^7.52.1",
     "react-router-dom": "^6.24.1",
     "shadcn-ui": "^0.2.3",
+    "swr": "^2.2.5",
     "tailwind-merge": "^2.4.0",
     "tailwindcss-animate": "^1.0.7",
     "vitest": "^1.6.0"
