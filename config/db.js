@@ -1,15 +1,12 @@
+require("dotenv").config();
 const mongoose = require("mongoose");
-
 const connectDB = async () => {
   try {
-    await mongoose.connect("mongodb://localhost:27017/user_management", {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    });
-    console.log("MongoDB connected");
+    mongoose.set("strictQuery", false);
+    const conn = await mongoose.connect(process.env.MONGODB_URI);
+    console.log(`Database Connected: ${conn.connection.host}`);
   } catch (error) {
-    console.error(error);
-    process.exit(1);
+    console.log(error);
   }
 };
 
