@@ -3,6 +3,13 @@ const router = express.Router();
 const bcrypt = require("bcryptjs");
 const User = require("../models/User");
 
+router.get("/test", async (req, res, next) => {
+  return res.status(200).json({
+    title: "Express Testing",
+    message: "The app is working properly!",
+  });
+});
+
 // GET all users
 router.get("/", async (req, res) => {
   try {
