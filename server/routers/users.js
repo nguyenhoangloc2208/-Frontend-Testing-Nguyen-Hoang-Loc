@@ -10,7 +10,6 @@ router.get("/test", async (req, res, next) => {
   });
 });
 
-// GET all users
 router.get("/", async (req, res) => {
   try {
     const users = await User.find();
@@ -20,7 +19,6 @@ router.get("/", async (req, res) => {
   }
 });
 
-// GET one user by id
 router.get("/:id", async (req, res) => {
   try {
     const user = await User.findById(req.params.id);
@@ -33,7 +31,6 @@ router.get("/:id", async (req, res) => {
   }
 });
 
-// POST create a new user
 router.post("/", async (req, res) => {
   const { username, password, email, firstName, lastName, phoneNumber, role } =
     req.body;
@@ -42,7 +39,6 @@ router.post("/", async (req, res) => {
     return res.status(400).json({ message: "Phone number is required" });
   }
   try {
-    // Check if username or email already exists
     let existingUser = await User.findOne({ username });
     if (existingUser) {
       return res.status(400).json({ message: "Username already exists" });
@@ -54,12 +50,11 @@ router.post("/", async (req, res) => {
     }
 
     // Hash password
-    const hashedPassword = await bcrypt.hash(password, 10);
+    // const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Create new user instance
     const newUser = new User({
       username,
-      password: hashedPassword,
+      password,
       email,
       firstName,
       lastName,
@@ -67,7 +62,6 @@ router.post("/", async (req, res) => {
       role,
     });
 
-    // Save new user to database
     await newUser.save();
     res.status(201).json(newUser);
   } catch (error) {
@@ -75,19 +69,16 @@ router.post("/", async (req, res) => {
   }
 });
 
-// PUT update a user by id
 router.put("/:id", async (req, res) => {
   const { username, password, email, firstName, lastName, phoneNumber, role } =
     req.body;
 
   try {
-    // Find user by id
     let user = await User.findById(req.params.id);
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
 
-    // Update user fields
     user.username = username;
     user.email = email;
     user.firstName = firstName;
@@ -95,12 +86,10 @@ router.put("/:id", async (req, res) => {
     user.phoneNumber = phoneNumber;
     user.role = role;
 
-    // If password provided, hash it and update
     if (password) {
       user.password = await bcrypt.hash(password, 10);
     }
 
-    // Save updated user to database
     await user.save();
     res.json(user);
   } catch (error) {
@@ -108,10 +97,8 @@ router.put("/:id", async (req, res) => {
   }
 });
 
-// DELETE a user by id
 router.delete("/:id", async (req, res) => {
   try {
-    // Find user by id and delete
     const user = await User.findByIdAndDelete(req.params.id);
     if (!user) {
       return res.status(404).json({ message: "User not found" });
