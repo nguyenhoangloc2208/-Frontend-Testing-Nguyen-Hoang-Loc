@@ -209,9 +209,23 @@ const HomePage = () => {
     },
   });
 
-  const onSubmit = (values) => {
-    alert(values.role);
-    console.log(values);
+  const onSubmit = async (value) => {
+    console.log(value);
+    try {
+      await axios.post(`/api/users/`, {
+        username: value.firstName + value.lastName,
+        password: value.password,
+        email: value.email,
+        firstName: value.firstName,
+        lastName: value.lastName,
+        phoneNumber: value.phone,
+        role: value.role,
+        avatar: value.avatar ? value.avatar : "",
+      });
+      alert("Success");
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   const handleImageChange = (e) => {
