@@ -2,6 +2,22 @@ const express = require("express");
 const router = express.Router();
 const bcrypt = require("bcryptjs");
 const User = require("../models/User");
+const multer = require("multer");
+const path = require("path");
+
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, "uploads/");
+  },
+  filename: function (req, file, cb) {
+    cb(
+      null,
+      file.fieldname + "-" + Date.now() + path.extname(file.originalname)
+    );
+  },
+});
+
+const upload = multer({ storage: storage });
 
 router.get("/test", async (req, res, next) => {
   return res.status(200).json({
@@ -31,9 +47,10 @@ router.get("/:id", async (req, res) => {
   }
 });
 
-router.post("/", async (req, res) => {
+router.post("/", upload.single("avatar"), async (req, res) => {
   const { username, password, email, firstName, lastName, phoneNumber, role } =
     req.body;
+  const avatar = req.file ? req.file.path : null;
 
   if (!phoneNumber) {
     return res.status(400).json({ message: "Phone number is required" });
@@ -60,6 +77,7 @@ router.post("/", async (req, res) => {
       lastName,
       phoneNumber,
       role,
+      avatar,
     });
 
     await newUser.save();
@@ -69,9 +87,10 @@ router.post("/", async (req, res) => {
   }
 });
 
-router.put("/:id", async (req, res) => {
+router.put("/:id", upload.single("avatar"), async (req, res) => {
   const { username, password, email, firstName, lastName, phoneNumber, role } =
     req.body;
+  const avatar = req.file ? req.file.path : null;
 
   try {
     let user = await User.findById(req.params.id);
@@ -85,10 +104,13 @@ router.put("/:id", async (req, res) => {
     user.lastName = lastName;
     user.phoneNumber = phoneNumber;
     user.role = role;
-
-    if (password) {
-      user.password = await bcrypt.hash(password, 10);
+    if (avatar) {
+      user.avatar = avatar;
     }
+
+    // if (password) {
+    //   user.password = await bcrypt.hash(password, 10);
+    // }
 
     await user.save();
     res.json(user);

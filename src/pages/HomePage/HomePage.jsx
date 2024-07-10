@@ -30,6 +30,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
 import {
   Select,
   SelectContent,
@@ -38,6 +39,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Paper from "@/components/Paper/Paper";
@@ -45,7 +55,30 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import capitalizeFirstLetter from "@/utils/CapitalizeFirstLetter";
 import * as XLSX from "xlsx";
-import { saveAs } from "file-saver";
+import { DialogClose } from "@radix-ui/react-dialog";
+import PlaceHolderImage from "../../assets/image/placeholdler_image.svg";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Controller, useForm } from "react-hook-form";
+import { z } from "zod";
+
+const formSchema = z
+  .object({
+    email: z.string().email("Invalid email address."),
+    role: z.enum(["admin", "user", "editor"]),
+    phone: z.string().min(10, {
+      message: "Phone number must be at least 10 digits.",
+    }),
+    firstName: z.string().min(1, { message: "First name is required." }),
+    lastName: z.string().min(1, { message: "Last name is required." }),
+    password: z.string().min(8, "Password must be at least 8 characters."),
+    confirmPassword: z.string(),
+
+    isVerified: z.boolean().optional(),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords don't match",
+    path: ["confirmPassword"],
+  });
 
 const HomePage = () => {
   const { data: userList, isLoading, error, mutate } = useUserList();
@@ -56,6 +89,8 @@ const HomePage = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [filter, setFilter] = useState("");
   const [filteredData, setFilteredData] = useState([]);
+  const [image, setImage] = useState(null);
+  const [prevImage, setPrevImage] = useState(null);
 
   useEffect(() => {
     setData(userList || []);
@@ -160,6 +195,39 @@ const HomePage = () => {
     XLSX.writeFile(workbook, fileName);
   };
 
+  const form = useForm({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      email: "",
+      role: "user",
+      phone: "",
+      firstName: "",
+      lastName: "",
+      password: "",
+      confirmPassword: "",
+    },
+  });
+
+  const onSubmit = (values) => {
+    alert(values.role);
+    console.log(values);
+  };
+
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setPrevImage(image);
+        setImage(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+  const handleCancelImageChange = () => {
+    setImage(prevImage);
+  };
+
   if (isLoading) return <div>loading...</div>;
 
   return (
@@ -195,39 +263,235 @@ const HomePage = () => {
                 <DialogTrigger asChild>
                   <Button variant="outline">Add New User</Button>
                 </DialogTrigger>
-                <DialogContent className="sm:max-w-[425px]">
+                <DialogContent className="sm:max-w-[800px]">
                   <DialogHeader>
-                    <DialogTitle>Edit profile</DialogTitle>
-                    <DialogDescription>
-                      Make changes to your profile here. Click save when you're
-                      done.
-                    </DialogDescription>
+                    <DialogTitle>Add new user</DialogTitle>
                   </DialogHeader>
-                  <div className="grid gap-4 py-4">
-                    <div className="grid grid-cols-4 items-center gap-4">
-                      <Label htmlFor="name" className="text-right">
-                        Name
-                      </Label>
-                      <Input
-                        id="name"
-                        defaultValue="Pedro Duarte"
-                        className="col-span-3"
-                      />
-                    </div>
-                    <div className="grid grid-cols-4 items-center gap-4">
-                      <Label htmlFor="username" className="text-right">
-                        Username
-                      </Label>
-                      <Input
-                        id="username"
-                        defaultValue="@peduarte"
-                        className="col-span-3"
-                      />
-                    </div>
+                  <div className="flex w-full space-x-4">
+                    <Form {...form}>
+                      <div></div>
+                      <form
+                        onSubmit={form.handleSubmit(onSubmit)}
+                        className="space-y-4 w-full">
+                        <div className="flex w-full">
+                          <div className="w-3/5 mr-10">
+                            <FormField
+                              control={form.control}
+                              name="email"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>Email *</FormLabel>
+                                  <FormControl>
+                                    <Input placeholder="email" {...field} />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                            <FormField
+                              control={form.control}
+                              name="role"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel htmlFor="role">Role</FormLabel>
+                                  <FormControl>
+                                    <Controller
+                                      control={form.control}
+                                      name="role"
+                                      render={({ field }) => (
+                                        <Select
+                                          id="role"
+                                          value={field.value}
+                                          onValueChange={(value) =>
+                                            field.onChange(value)
+                                          }>
+                                          <SelectTrigger>
+                                            <SelectValue placeholder="Roles" />
+                                          </SelectTrigger>
+                                          <SelectContent>
+                                            <SelectGroup>
+                                              <SelectItem value="admin">
+                                                Admin
+                                              </SelectItem>
+                                              <SelectItem value="user">
+                                                User
+                                              </SelectItem>
+                                              <SelectItem value="editor">
+                                                Editor
+                                              </SelectItem>
+                                            </SelectGroup>
+                                          </SelectContent>
+                                        </Select>
+                                      )}
+                                    />
+                                  </FormControl>
+                                </FormItem>
+                              )}
+                            />
+                            <FormField
+                              control={form.control}
+                              name="phone"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel htmlFor="phone">
+                                    Phone number *
+                                  </FormLabel>
+                                  <FormControl>
+                                    <Input
+                                      type="tel"
+                                      id="phone"
+                                      placeholder="0911222333"
+                                      {...field}
+                                    />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                            <div className="flex space-x-4">
+                              <FormField
+                                control={form.control}
+                                name="firstName"
+                                render={({ field }) => (
+                                  <div className="w-1/2">
+                                    <FormLabel htmlFor="firstName">
+                                      First Name *
+                                    </FormLabel>
+                                    <FormControl>
+                                      <Input
+                                        type="text"
+                                        id="firstName"
+                                        placeholder="John"
+                                        {...field}
+                                      />
+                                    </FormControl>
+                                    <FormMessage />
+                                  </div>
+                                )}
+                              />
+                              <FormField
+                                control={form.control}
+                                name="lastName"
+                                render={({ field }) => (
+                                  <div className="w-1/2">
+                                    <FormLabel htmlFor="lastName">
+                                      Last Name *
+                                    </FormLabel>
+                                    <FormControl>
+                                      <Input
+                                        type="text"
+                                        id="lastName"
+                                        placeholder="Doe"
+                                        {...field}
+                                      />
+                                    </FormControl>
+                                    <FormMessage />
+                                  </div>
+                                )}
+                              />
+                            </div>
+                            <FormField
+                              control={form.control}
+                              name="password"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel htmlFor="password">
+                                    Password *
+                                  </FormLabel>
+                                  <FormControl>
+                                    <Input
+                                      id="password"
+                                      type="password"
+                                      placeholder="Enter password"
+                                      className="mb-5"
+                                      {...field}
+                                    />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                            <FormField
+                              control={form.control}
+                              name="confirmPassword"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel htmlFor="confirmPassword">
+                                    Confirm Password *
+                                  </FormLabel>
+                                  <FormControl>
+                                    <Input
+                                      id="confirmPassword"
+                                      type="password"
+                                      placeholder="Confirm password"
+                                      {...field}
+                                    />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                          </div>
+                          <Separator
+                            className="w-[1px] mx-5 h-auto"
+                            orientation="vertical"
+                          />
+                          <div className="w-1/3">
+                            <div className="flex flex-col items-center w-full gap-5">
+                              <Label className="text-lg">Profile Picture</Label>
+                              <div className="w-2/3 mb-4 bg-gray-200 overflow-hidden aspect-w-1 aspect-h-1 rounded-3xl">
+                                <div className="w-full">
+                                  <img
+                                    src={image ? image : PlaceHolderImage}
+                                    alt="Profile"
+                                    className="object-cover w-full h-auto"
+                                  />
+                                </div>
+                              </div>
+                              <Dialog>
+                                <DialogTrigger asChild>
+                                  <Button variant="outline">
+                                    Select Image
+                                  </Button>
+                                </DialogTrigger>
+                                <DialogContent>
+                                  <DialogTitle>
+                                    Select Profile Picture
+                                  </DialogTitle>
+                                  <input
+                                    type="file"
+                                    accept="image/*"
+                                    onChange={handleImageChange}
+                                  />
+                                  <div className="flex justify-end mt-4 space-x-2">
+                                    <DialogClose asChild>
+                                      <Button
+                                        variant="outline"
+                                        onClick={handleCancelImageChange}>
+                                        Cancel
+                                      </Button>
+                                    </DialogClose>
+                                    <DialogClose asChild>
+                                      <Button variant="primary">Done</Button>
+                                    </DialogClose>
+                                  </div>
+                                </DialogContent>
+                              </Dialog>
+                            </div>
+                          </div>
+                        </div>
+
+                        <DialogFooter className="sm:justify-start">
+                          <Button type="submit">Add User</Button>
+                          <DialogClose asChild>
+                            <Button variant="outline" type="button">
+                              Cancel
+                            </Button>
+                          </DialogClose>
+                        </DialogFooter>
+                      </form>
+                    </Form>
                   </div>
-                  <DialogFooter>
-                    <Button type="submit">Save changes</Button>
-                  </DialogFooter>
                 </DialogContent>
               </Dialog>
             </div>
