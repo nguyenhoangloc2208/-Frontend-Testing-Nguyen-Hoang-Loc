@@ -209,9 +209,41 @@ const HomePage = () => {
     },
   });
 
+  const uploadImageToCloudinary = async (image) => {
+    const formData = new FormData();
+    formData.append("file", image);
+    formData.append(
+      "upload_preset",
+      import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET
+    );
+    formData.append("timestamp", Math.round(new Date().getTime() / 1000));
+    formData.append("api_key", import.meta.env.VITE_CLOUDINARY_API_KEY);
+
+    try {
+      const response = await axios.post(
+        "https://api.cloudinary.com/v1_1/drrvltkaz/image/upload",
+        formData
+      );
+      console.log(">>>", response);
+      return response.data.secure_url;
+    } catch (error) {
+      console.error("Error uploading image to Cloudinary:", error);
+      return null;
+    }
+  };
+
   const onSubmit = async (value) => {
     console.log(value);
     try {
+      let avatarUrl = value.avatar;
+
+      if (avatarUrl) {
+        const uploadedImageUrl = await uploadImageToCloudinary(avatarUrl);
+        if (uploadedImageUrl) {
+          avatarUrl = uploadedImageUrl;
+        }
+      }
+
       await axios.post(`/api/users/`, {
         username: value.firstName + value.lastName,
         password: value.password,
@@ -220,7 +252,7 @@ const HomePage = () => {
         lastName: value.lastName,
         phoneNumber: value.phone,
         role: value.role,
-        avatar: value.avatar ? value.avatar : "",
+        avatar: avatarUrl ? avatarUrl : "",
       });
       alert("Success");
     } catch (error) {
