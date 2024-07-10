@@ -72,7 +72,7 @@ const formSchema = z
     lastName: z.string().min(1, { message: "Last name is required." }),
     password: z.string().min(8, "Password must be at least 8 characters."),
     confirmPassword: z.string(),
-
+    avatar: z.string().optional(),
     isVerified: z.boolean().optional(),
   })
   .refine((data) => data.password === data.confirmPassword, {
@@ -205,6 +205,7 @@ const HomePage = () => {
       lastName: "",
       password: "",
       confirmPassword: "",
+      avatar: "",
     },
   });
 
@@ -220,12 +221,13 @@ const HomePage = () => {
       reader.onloadend = () => {
         setPrevImage(image);
         setImage(reader.result);
+        form.setValue("avatar", reader.result);
       };
       reader.readAsDataURL(file);
     }
   };
   const handleCancelImageChange = () => {
-    setImage(prevImage);
+    handleImageChange(prevImage);
   };
 
   if (isLoading) return <div>loading...</div>;
