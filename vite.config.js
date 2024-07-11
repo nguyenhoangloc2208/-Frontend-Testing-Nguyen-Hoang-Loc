@@ -10,11 +10,18 @@ export default defineConfig({
   plugins: [react()],
   server: {
     proxy: {
-      "/api": {
+      "/server": {
         target: process.env.VITE_SERVER_URL,
         changeOrigin: true,
         rewrite: (path) => {
-          return path;
+          const urlObj = new URL(
+            path,
+            process.env.VITE_SERVER_URL + path.replace(/^\/server/, "")
+          );
+          return urlObj
+            .toString()
+            .replace(process.env.VITE_SERVER_URL, "")
+            .replace("/server", "");
         },
       },
     },

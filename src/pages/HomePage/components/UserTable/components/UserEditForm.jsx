@@ -72,7 +72,7 @@ const UserEditForm = ({ user, formSchema }) => {
         }
       }
 
-      await axios.put(`/api/users/${user.id}`, {
+      await axios.put(`/server/api/users/${user.id}`, {
         username: value.firstName + value.lastName,
         password: value.password,
         email: value.email,

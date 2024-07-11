@@ -4,8 +4,8 @@
   "installCommand": "npm install -f",
   "rewrites": [
     {
-      "source": "/api/:path*",
-      "destination": "https://nguyenhoangloc2208-user-management-server.vercel.app/api/:path*"
+      "source": "/server/:path*",
+      "destination": "https://nguyenhoangloc2208-user-management-server.vercel.app/:path*"
     },
     {
       "source": "/(.*)",

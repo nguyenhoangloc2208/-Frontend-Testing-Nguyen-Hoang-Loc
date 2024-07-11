@@ -10,10 +10,14 @@ const addIndexToData = (data) => {
 };
 
 export default function useUserList() {
-  const { data, isLoading, error, mutate } = useSWR(`/api/users/`, getData, {
-    refreshInterval: 0,
-    revalidateOnFocus: false,
-  });
+  const { data, isLoading, error, mutate } = useSWR(
+    `/server/api/users/`,
+    getData,
+    {
+      refreshInterval: 0,
+      revalidateOnFocus: false,
+    }
+  );
 
   const indexedData = Array.isArray(data) ? addIndexToData(data) : [];
 

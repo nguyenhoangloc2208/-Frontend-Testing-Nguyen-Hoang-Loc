@@ -135,7 +135,7 @@ const UserTable = () => {
 
   const handleDeleteUser = async (id) => {
     try {
-      await axios.delete(`/api/users/${id}`);
+      await axios.delete(`/server/api/users/${id}`);
       mutate();
       alert("User deleted successfully!");
       const updatedData = data.filter((user) => user._id !== id);
