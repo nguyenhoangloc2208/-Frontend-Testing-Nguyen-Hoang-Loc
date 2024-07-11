@@ -225,66 +225,70 @@ const UserTable = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {paginatedData.map((user) => (
-                <TableRow key={user._id}>
-                  <TableCell className="text-center min-w-[20px]">
-                    {user.index}
-                  </TableCell>
-                  <TableCell className="text-center">{user.email}</TableCell>
-                  <TableCell className="text-center">
-                    {user.phoneNumber}
-                  </TableCell>
-                  <TableCell className="text-center">
-                    {user.firstName}
-                  </TableCell>
-                  <TableCell className="text-center">{user.lastName}</TableCell>
-                  <TableCell className="text-center">
-                    {capitalizeFirstLetter(user.role)}
-                  </TableCell>
-                  <TableCell className="text-center">
-                    <div className="flex items-center justify-center">
-                      <Dialog>
-                        <DialogTrigger asChild>
-                          <Button variant="outline" className="mr-5">
-                            Edit
-                          </Button>
-                        </DialogTrigger>
-                        <DialogContent className="sm:max-w-[800px]">
-                          <DialogHeader>
-                            <DialogTitle>Edit user</DialogTitle>
-                          </DialogHeader>
-                          <UserEditForm user={user} formSchema={formSchema} />
-                        </DialogContent>
-                      </Dialog>
+              {paginatedData &&
+                paginatedData.length > 0 &&
+                paginatedData.map((user) => (
+                  <TableRow key={user._id}>
+                    <TableCell className="text-center min-w-[20px]">
+                      {user.index}
+                    </TableCell>
+                    <TableCell className="text-center">{user.email}</TableCell>
+                    <TableCell className="text-center">
+                      {user.phoneNumber}
+                    </TableCell>
+                    <TableCell className="text-center">
+                      {user.firstName}
+                    </TableCell>
+                    <TableCell className="text-center">
+                      {user.lastName}
+                    </TableCell>
+                    <TableCell className="text-center">
+                      {capitalizeFirstLetter(user.role)}
+                    </TableCell>
+                    <TableCell className="text-center">
+                      <div className="flex items-center justify-center">
+                        <Dialog>
+                          <DialogTrigger asChild>
+                            <Button variant="outline" className="mr-5">
+                              Edit
+                            </Button>
+                          </DialogTrigger>
+                          <DialogContent className="sm:max-w-[800px]">
+                            <DialogHeader>
+                              <DialogTitle>Edit user</DialogTitle>
+                            </DialogHeader>
+                            <UserEditForm user={user} formSchema={formSchema} />
+                          </DialogContent>
+                        </Dialog>
 
-                      <AlertDialog>
-                        <AlertDialogTrigger asChild>
-                          <Button variant="outline">Delete</Button>
-                        </AlertDialogTrigger>
-                        <AlertDialogContent>
-                          <AlertDialogHeader>
-                            <AlertDialogTitle>
-                              Are you absolutely sure?
-                            </AlertDialogTitle>
-                            <AlertDialogDescription>
-                              This action cannot be undone. This will
-                              permanently delete this user and remove your data
-                              from our servers.
-                            </AlertDialogDescription>
-                          </AlertDialogHeader>
-                          <AlertDialogFooter>
-                            <AlertDialogCancel>Cancel</AlertDialogCancel>
-                            <AlertDialogAction
-                              onClick={() => handleDeleteUser(user._id)}>
-                              Continue
-                            </AlertDialogAction>
-                          </AlertDialogFooter>
-                        </AlertDialogContent>
-                      </AlertDialog>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))}
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button variant="outline">Delete</Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>
+                                Are you absolutely sure?
+                              </AlertDialogTitle>
+                              <AlertDialogDescription>
+                                This action cannot be undone. This will
+                                permanently delete this user and remove your
+                                data from our servers.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Cancel</AlertDialogCancel>
+                              <AlertDialogAction
+                                onClick={() => handleDeleteUser(user._id)}>
+                                Continue
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
             </TableBody>
           </Table>
         </div>

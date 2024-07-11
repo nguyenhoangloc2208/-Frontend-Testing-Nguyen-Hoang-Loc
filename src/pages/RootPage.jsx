@@ -51,13 +51,15 @@ const RootPage = () => {
       <aside className="h-screen sticky top-0 left-0 bg-gray-100">
         <nav>
           <ul>
-            {icons.map((item, index) => (
-              <li
-                key={index}
-                className={`p-6 flex items-center cursor-pointer ${item.bg}`}>
-                {item.icon}
-              </li>
-            ))}
+            {icons &&
+              icons.length > 0 &&
+              icons.map((item, index) => (
+                <li
+                  key={index}
+                  className={`p-6 flex items-center cursor-pointer ${item.bg}`}>
+                  {item.icon}
+                </li>
+              ))}
           </ul>
         </nav>
       </aside>
