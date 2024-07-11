@@ -74,9 +74,9 @@ const UserTable = () => {
   const [filteredData, setFilteredData] = useState([]);
 
   useEffect(() => {
-    setData(userList || []);
-    if (filteredData.length === 0) {
-      setFilteredData(userList || []);
+    setData(userList);
+    if (filteredData.length === 0 && userList.length > 0) {
+      setFilteredData(userList);
     }
   }, [userList]);
 
@@ -226,7 +226,7 @@ const UserTable = () => {
             </TableHeader>
             <TableBody>
               {paginatedData.map((user) => (
-                <TableRow key={user.id}>
+                <TableRow key={user._id}>
                   <TableCell className="text-center min-w-[20px]">
                     {user.index}
                   </TableCell>
