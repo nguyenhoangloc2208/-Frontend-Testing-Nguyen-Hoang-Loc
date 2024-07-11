@@ -43,6 +43,7 @@ import capitalizeFirstLetter from "@/utils/CapitalizeFirstLetter";
 import ExportToExcel from "./components/ExportToExcel";
 import AddNewUser from "./components/AddNewUser";
 import UserEditForm from "./components/UserEditForm";
+import axios from "axios";
 
 const formSchema = z
   .object({
@@ -135,13 +136,14 @@ const UserTable = () => {
 
   const handleDeleteUser = async (id) => {
     try {
-      await axios.delete(`/server/api/users/${id}`);
+      await axios.delete(`${import.meta.env.VITE_SERVER_URL}/api/users/${id}`);
       mutate();
       alert("User deleted successfully!");
       const updatedData = data.filter((user) => user._id !== id);
       setData(updatedData);
       setFilteredData(applyFilters(updatedData));
     } catch (error) {
+      console.error(error);
       alert("Failed to delete user.");
     }
   };

@@ -11,7 +11,7 @@ const addIndexToData = (data) => {
 
 export default function useUserList() {
   const { data, isLoading, error, mutate } = useSWR(
-    `/server/api/users/`,
+    `${import.meta.env.VITE_SERVER_URL}/api/users/`,
     getData,
     {
       refreshInterval: 0,

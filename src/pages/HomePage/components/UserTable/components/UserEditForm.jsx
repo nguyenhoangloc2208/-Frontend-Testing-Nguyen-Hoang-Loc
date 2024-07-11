@@ -72,16 +72,19 @@ const UserEditForm = ({ user, formSchema }) => {
         }
       }
 
-      await axios.put(`/server/api/users/${user.id}`, {
-        username: value.firstName + value.lastName,
-        password: value.password,
-        email: value.email,
-        firstName: value.firstName,
-        lastName: value.lastName,
-        phoneNumber: value.phone,
-        role: value.role,
-        avatar: avatarUrl ? avatarUrl : "",
-      });
+      await axios.put(
+        `${import.meta.env.VITE_SERVER_URL}/api/users/${user.id}`,
+        {
+          username: value.firstName + value.lastName,
+          password: value.password,
+          email: value.email,
+          firstName: value.firstName,
+          lastName: value.lastName,
+          phoneNumber: value.phone,
+          role: value.role,
+          avatar: avatarUrl ? avatarUrl : "",
+        }
+      );
       alert("Success");
     } catch (error) {
       console.error(error);

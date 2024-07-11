@@ -85,7 +85,7 @@ const AddNewUser = ({ formSchema, mutate }) => {
         }
       }
 
-      await axios.post(`/api/users/`, {
+      await axios.post(`${import.meta.env.VITE_SERVER_URL}/api/users/`, {
         username: value.firstName + value.lastName,
         password: value.password,
         email: value.email,
