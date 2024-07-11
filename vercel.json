@@ -5,7 +5,7 @@
   "rewrites": [
     {
       "source": "/api/:path*",
-      "destination": "https://nguyenhoangloc2208-user-management-server.vercel.app/api/"
+      "destination": "https://nguyenhoangloc2208-user-management-server.vercel.app/api"
     },
     {
       "source": "/(.*)",
