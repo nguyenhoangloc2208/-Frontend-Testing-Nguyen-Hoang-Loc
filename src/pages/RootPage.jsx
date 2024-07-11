@@ -51,7 +51,7 @@ const RootPage = () => {
       <aside className="h-screen sticky top-0 left-0 bg-gray-100">
         <nav>
           <ul>
-            {icons &&
+            {Array.isArray(icons) &&
               icons.length > 0 &&
               icons.map((item, index) => (
                 <li

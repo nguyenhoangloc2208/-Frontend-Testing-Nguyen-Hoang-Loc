@@ -225,7 +225,7 @@ const UserTable = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {paginatedData &&
+              {Array.isArray(paginatedData) &&
                 paginatedData.length > 0 &&
                 paginatedData.map((user) => (
                   <TableRow key={user._id}>

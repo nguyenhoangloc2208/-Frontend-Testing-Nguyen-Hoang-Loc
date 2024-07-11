@@ -2,6 +2,11 @@ import { Button } from "@/components/ui/button";
 import * as XLSX from "xlsx";
 
 const ExportToExcel = ({ data }) => {
+  if (!Array.isArray(data)) {
+    console.error("Expected data to be an array but got:", data);
+    return;
+  }
+
   const handleExportToExcel = () => {
     const filteredForExport = data;
 
@@ -16,7 +21,7 @@ const ExportToExcel = ({ data }) => {
         FirstName: user.firstName,
         LastName: user.lastName,
         Role: user.role,
-        Avatar: user.avatar ? user.avatar : null,
+        Avatar: user.avatar ? user.avatar : "",
         "Create At": new Date(user.createdAt).toLocaleString("vi-VN", {
           timeZone: "Asia/Ho_Chi_Minh",
         }),
