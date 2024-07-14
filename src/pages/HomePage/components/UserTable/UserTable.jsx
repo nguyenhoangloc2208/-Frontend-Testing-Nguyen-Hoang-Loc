@@ -11,7 +11,6 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import {
@@ -313,24 +312,12 @@ const UserTable = () => {
                         </DropdownMenuContent>
                       </DropdownMenu>
                       <div className="hidden md:flex lg:flex items-center justify-center">
-                        <Dialog>
-                          <DialogTrigger asChild>
-                            <Button variant="link" className="mr-5">
-                              Edit
-                            </Button>
-                          </DialogTrigger>
-                          <DialogContent className="sm:max-w-[800px]">
-                            <DialogHeader>
-                              <DialogTitle>Edit user</DialogTitle>
-                            </DialogHeader>
-                            <UserEditForm
-                              editDialogOpen={editDialogOpen}
-                              setEditDialogOpen={setEditDialogOpen}
-                              user={user}
-                              formSchema={formSchema}
-                            />
-                          </DialogContent>
-                        </Dialog>
+                        <UserEditForm
+                          editDialogOpen={editDialogOpen}
+                          setEditDialogOpen={setEditDialogOpen}
+                          user={user}
+                          formSchema={formSchema}
+                        />
 
                         <Dialog
                           open={editDialogOpen}

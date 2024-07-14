@@ -41,6 +41,7 @@ const AddNewUser = ({ formSchema, mutate }) => {
   const [prevImage, setPrevImage] = useState(null);
   const [isShowPassWord, setIsShowPassWord] = useState(false);
   const [isShowConfirmPassWord, setIsShowConfirmPassWord] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const form = useForm({
     resolver: zodResolver(formSchema),
@@ -57,19 +58,19 @@ const AddNewUser = ({ formSchema, mutate }) => {
   });
 
   const uploadImageToCloudinary = async (image) => {
-    const forlgata = new Forlgata();
-    forlgata.append("file", image);
-    forlgata.append(
+    const formdata = new FormData();
+    formdata.append("file", image);
+    formdata.append(
       "upload_preset",
       import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET
     );
-    forlgata.append("timestamp", Math.round(new Date().getTime() / 1000));
-    forlgata.append("api_key", import.meta.env.VITE_CLOUDINARY_API_KEY);
+    formdata.append("timestamp", Math.round(new Date().getTime() / 1000));
+    formdata.append("api_key", import.meta.env.VITE_CLOUDINARY_API_KEY);
 
     try {
       const response = await axios.post(
         "https://api.cloudinary.com/v1_1/drrvltkaz/image/upload",
-        forlgata
+        formdata
       );
       console.log(">>>", response);
       return response.data.secure_url;
@@ -80,7 +81,7 @@ const AddNewUser = ({ formSchema, mutate }) => {
   };
 
   const onSubmit = async (value) => {
-    console.log(value);
+    setIsLoading(true);
     try {
       let avatarUrl = value.avatar;
 
@@ -113,6 +114,7 @@ const AddNewUser = ({ formSchema, mutate }) => {
         description: "There was a problem with your request.",
       });
     }
+    setIsLoading(false);
   };
 
   const handleImageChange = (e) => {
@@ -138,257 +140,274 @@ const AddNewUser = ({ formSchema, mutate }) => {
           Add New User
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[800px]">
-        <DialogHeader>
-          <DialogTitle className="hidden lg:block">Add new user</DialogTitle>
-        </DialogHeader>
-        <div className="flex w-full space-x-4">
-          <Form {...form}>
-            <form
-              onSubmit={form.handleSubmit(onSubmit)}
-              className="space-y-4 w-full">
-              <div className="flex w-full">
-                <div className="lg:w-3/5 w-full">
-                  <FormField
-                    control={form.control}
-                    name="email"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Email *</FormLabel>
-                        <FormControl>
-                          <Input placeholder="email" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="role"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel htmlFor="role">Role</FormLabel>
-                        <FormControl>
-                          <Controller
-                            control={form.control}
-                            name="role"
-                            render={({ field }) => (
-                              <Select
-                                id="role"
-                                value={field.value}
-                                onValueChange={(value) =>
-                                  field.onChange(value)
-                                }>
-                                <SelectTrigger>
-                                  <SelectValue placeholder="Roles" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  <SelectGroup>
-                                    <SelectItem value="admin">Admin</SelectItem>
-                                    <SelectItem value="user">User</SelectItem>
-                                    <SelectItem value="editor">
-                                      Editor
-                                    </SelectItem>
-                                  </SelectGroup>
-                                </SelectContent>
-                              </Select>
-                            )}
-                          />
-                        </FormControl>
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="phone"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel htmlFor="phone">Phone number *</FormLabel>
-                        <FormControl>
-                          <Input
-                            type="tel"
-                            id="phone"
-                            placeholder="0911222333"
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <div className="flex space-x-4">
+      {isLoading ? (
+        <DialogContent className="sm:max-w-[800px] flex items-center justify-center">
+          <span class="loading loading-spinner loading-lg"></span>
+        </DialogContent>
+      ) : (
+        <DialogContent className="sm:max-w-[800px]">
+          <DialogHeader>
+            <DialogTitle className="hidden lg:block">Add new user</DialogTitle>
+          </DialogHeader>
+          <div className="flex w-full space-x-4">
+            <Form {...form}>
+              <form
+                onSubmit={form.handleSubmit(onSubmit)}
+                className="space-y-4 w-full">
+                <div className="flex w-full">
+                  <div className="lg:w-3/5 w-full">
                     <FormField
                       control={form.control}
-                      name="firstName"
+                      name="email"
                       render={({ field }) => (
-                        <div className="w-1/2">
-                          <FormLabel htmlFor="firstName">
-                            First Name *
+                        <FormItem>
+                          <FormLabel>Email *</FormLabel>
+                          <FormControl>
+                            <Input placeholder="email" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="role"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel htmlFor="role">Role</FormLabel>
+                          <FormControl>
+                            <Controller
+                              control={form.control}
+                              name="role"
+                              render={({ field }) => (
+                                <Select
+                                  id="role"
+                                  value={field.value}
+                                  onValueChange={(value) =>
+                                    field.onChange(value)
+                                  }>
+                                  <SelectTrigger>
+                                    <SelectValue placeholder="Roles" />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    <SelectGroup>
+                                      <SelectItem value="admin">
+                                        Admin
+                                      </SelectItem>
+                                      <SelectItem value="user">User</SelectItem>
+                                      <SelectItem value="editor">
+                                        Editor
+                                      </SelectItem>
+                                    </SelectGroup>
+                                  </SelectContent>
+                                </Select>
+                              )}
+                            />
+                          </FormControl>
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="phone"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel htmlFor="phone">Phone number *</FormLabel>
+                          <FormControl>
+                            <Input
+                              type="tel"
+                              id="phone"
+                              placeholder="0911222333"
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <div className="flex space-x-4">
+                      <FormField
+                        control={form.control}
+                        name="firstName"
+                        render={({ field }) => (
+                          <div className="w-1/2">
+                            <FormLabel htmlFor="firstName">
+                              First Name *
+                            </FormLabel>
+                            <FormControl>
+                              <Input
+                                type="text"
+                                id="firstName"
+                                placeholder="John"
+                                {...field}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </div>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="lastName"
+                        render={({ field }) => (
+                          <div className="w-1/2">
+                            <FormLabel htmlFor="lastName">
+                              Last Name *
+                            </FormLabel>
+                            <FormControl>
+                              <Input
+                                type="text"
+                                id="lastName"
+                                placeholder="Doe"
+                                {...field}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </div>
+                        )}
+                      />
+                    </div>
+                    <FormField
+                      control={form.control}
+                      name="password"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel htmlFor="password">Password *</FormLabel>
+                          <FormControl>
+                            <div className="relative">
+                              <Input
+                                id="password"
+                                type={isShowPassWord ? "text" : "password"}
+                                placeholder="Enter password"
+                                className="mb-5"
+                                {...field}
+                              />
+                              <div
+                                onClick={() =>
+                                  setIsShowPassWord(!isShowPassWord)
+                                }
+                                className="absolute cursor-pointer top-2 right-2">
+                                {isShowPassWord ? <EyeOff /> : <Eye />}
+                              </div>
+                            </div>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="confirmPassword"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel htmlFor="confirmPassword">
+                            Confirm Password *
+                          </FormLabel>
+                          <FormControl>
+                            <div className="relative">
+                              <Input
+                                id="confirmPassword"
+                                type={
+                                  isShowConfirmPassWord ? "text" : "password"
+                                }
+                                placeholder="Confirm password"
+                                {...field}
+                              />
+                              <div
+                                onClick={() =>
+                                  setIsShowConfirmPassWord(
+                                    !isShowConfirmPassWord
+                                  )
+                                }
+                                className="absolute cursor-pointer top-2 right-2">
+                                {isShowConfirmPassWord ? <EyeOff /> : <Eye />}
+                              </div>
+                            </div>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="avatar"
+                      render={({ field }) => (
+                        <FormItem className="lg:hidden">
+                          <FormLabel htmlFor="avatar">
+                            Profile Picture
                           </FormLabel>
                           <FormControl>
                             <Input
-                              type="text"
-                              id="firstName"
-                              placeholder="John"
-                              {...field}
+                              type="file"
+                              accept="image/*"
+                              id="avatar"
+                              onChange={handleImageChange}
+                              {...field.avatar}
                             />
                           </FormControl>
                           <FormMessage />
-                        </div>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="lastName"
-                      render={({ field }) => (
-                        <div className="w-1/2">
-                          <FormLabel htmlFor="lastName">Last Name *</FormLabel>
-                          <FormControl>
-                            <Input
-                              type="text"
-                              id="lastName"
-                              placeholder="Doe"
-                              {...field}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </div>
+                        </FormItem>
                       )}
                     />
                   </div>
-                  <FormField
-                    control={form.control}
-                    name="password"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel htmlFor="password">Password *</FormLabel>
-                        <FormControl>
-                          <div className="relative">
-                            <Input
-                              id="password"
-                              type={isShowPassWord ? "text" : "password"}
-                              placeholder="Enter password"
-                              className="mb-5"
-                              {...field}
-                            />
-                            <div
-                              onClick={() => setIsShowPassWord(!isShowPassWord)}
-                              className="absolute cursor-pointer top-2 right-2">
-                              {isShowPassWord ? <EyeOff /> : <Eye />}
-                            </div>
-                          </div>
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
+                  <Separator
+                    className="hidden md:block w-[1px] mx-5 h-auto"
+                    orientation="vertical"
                   />
-                  <FormField
-                    control={form.control}
-                    name="confirmPassword"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel htmlFor="confirmPassword">
-                          Confirm Password *
-                        </FormLabel>
-                        <FormControl>
-                          <div className="relative">
-                            <Input
-                              id="confirmPassword"
-                              type={isShowConfirmPassWord ? "text" : "password"}
-                              placeholder="Confirm password"
-                              {...field}
-                            />
-                            <div
-                              onClick={() =>
-                                setIsShowConfirmPassWord(!isShowConfirmPassWord)
-                              }
-                              className="absolute cursor-pointer top-2 right-2">
-                              {isShowConfirmPassWord ? <EyeOff /> : <Eye />}
-                            </div>
-                          </div>
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="avatar"
-                    className="lg:hidden"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel htmlFor="avatar">Profile Picture</FormLabel>
-                        <FormControl>
+                  <div className="lg:w-1/3 lg:flex hidden">
+                    <div className="flex flex-col items-center w-full gap-5">
+                      <Label className="text-lg">Profile Picture</Label>
+                      <div className="w-2/3 mb-4 bg-gray-200 overflow-hidden aspect-w-1 aspect-h-1 rounded-3xl">
+                        <div className="w-full">
+                          <img
+                            src={image ? image : PlaceHolderImage}
+                            alt="Profile"
+                            className="object-cover w-full h-auto"
+                          />
+                        </div>
+                      </div>
+                      <Dialog>
+                        <DialogTrigger asChild>
+                          <Button variant="outline">Select Image</Button>
+                        </DialogTrigger>
+                        <DialogContent>
+                          <DialogTitle>Select Profile Picture</DialogTitle>
                           <Input
                             type="file"
                             accept="image/*"
-                            id="avatar"
                             onChange={handleImageChange}
-                            {...field.avatar}
                           />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-                <Separator
-                  className="hidden md:block w-[1px] mx-5 h-auto"
-                  orientation="vertical"
-                />
-                <div className="lg:w-1/3 lg:flex hidden">
-                  <div className="flex flex-col items-center w-full gap-5">
-                    <Label className="text-lg">Profile Picture</Label>
-                    <div className="w-2/3 mb-4 bg-gray-200 overflow-hidden aspect-w-1 aspect-h-1 rounded-3xl">
-                      <div className="w-full">
-                        <img
-                          src={image ? image : PlaceHolderImage}
-                          alt="Profile"
-                          className="object-cover w-full h-auto"
-                        />
-                      </div>
+                          <div className="flex justify-end mt-4 space-x-2">
+                            <DialogClose asChild>
+                              <Button
+                                variant="outline"
+                                onClick={handleCancelImageChange}>
+                                Cancel
+                              </Button>
+                            </DialogClose>
+                            <DialogClose asChild>
+                              <Button variant="primary">Done</Button>
+                            </DialogClose>
+                          </div>
+                        </DialogContent>
+                      </Dialog>
                     </div>
-                    <Dialog>
-                      <DialogTrigger asChild>
-                        <Button variant="outline">Select Image</Button>
-                      </DialogTrigger>
-                      <DialogContent>
-                        <DialogTitle>Select Profile Picture</DialogTitle>
-                        <input
-                          type="file"
-                          accept="image/*"
-                          onChange={handleImageChange}
-                        />
-                        <div className="flex justify-end mt-4 space-x-2">
-                          <DialogClose asChild>
-                            <Button
-                              variant="outline"
-                              onClick={handleCancelImageChange}>
-                              Cancel
-                            </Button>
-                          </DialogClose>
-                          <DialogClose asChild>
-                            <Button variant="primary">Done</Button>
-                          </DialogClose>
-                        </div>
-                      </DialogContent>
-                    </Dialog>
                   </div>
                 </div>
-              </div>
 
-              <DialogFooter className="sm:justify-start">
-                <Button type="submit">Add User</Button>
-                <DialogClose asChild>
-                  <Button variant="outline" type="button">
-                    Cancel
-                  </Button>
-                </DialogClose>
-              </DialogFooter>
-            </form>
-          </Form>
-        </div>
-      </DialogContent>
+                <DialogFooter className="sm:justify-start">
+                  <Button type="submit">Add User</Button>
+                  <DialogClose asChild>
+                    <Button variant="outline" type="button">
+                      Cancel
+                    </Button>
+                  </DialogClose>
+                </DialogFooter>
+              </form>
+            </Form>
+          </div>
+        </DialogContent>
+      )}
     </Dialog>
   );
 };
