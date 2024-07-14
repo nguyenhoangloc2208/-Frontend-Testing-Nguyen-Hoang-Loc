@@ -29,9 +29,11 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import PlaceHolderImage from "../../../../../assets/image/placeholdler_image.svg";
+import { useToast } from "@/components/ui/use-toast";
 
 const UserEditForm = ({ user, formSchema }) => {
   const [image, setImage] = useState(null);
+  const toast = useToast();
 
   const form = useForm({
     resolver: zodResolver(formSchema),
@@ -85,7 +87,9 @@ const UserEditForm = ({ user, formSchema }) => {
           avatar: avatarUrl ? avatarUrl : "",
         }
       );
-      alert("Success");
+      toast({
+        description: "Success!",
+      });
     } catch (error) {
       console.error(error);
     }

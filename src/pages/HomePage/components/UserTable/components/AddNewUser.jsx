@@ -32,8 +32,10 @@ import { useState } from "react";
 import { useForm, Controller } from "react-hook-form";
 import PlaceHolderImage from "../../../../../assets/image/placeholdler_image.svg";
 import axios from "axios";
+import { useToast } from "@/components/ui/use-toast";
 
 const AddNewUser = ({ formSchema, mutate }) => {
+  const { toast } = useToast();
   const [image, setImage] = useState(null);
   const [prevImage, setPrevImage] = useState(null);
   const form = useForm({
@@ -95,10 +97,17 @@ const AddNewUser = ({ formSchema, mutate }) => {
         role: value.role,
         avatar: avatarUrl ? avatarUrl : "",
       });
-      alert("Success");
+      toast({
+        description: "Success!",
+      });
       mutate();
     } catch (error) {
       console.error(error);
+      toast({
+        variant: "destructive",
+        title: "Uh oh! Something went wrong.",
+        description: "There was a problem with your request.",
+      });
     }
   };
 
@@ -121,7 +130,7 @@ const AddNewUser = ({ formSchema, mutate }) => {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button variant="outline">Add New User</Button>
+        <Button>Add New User</Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[800px]">
         <DialogHeader>

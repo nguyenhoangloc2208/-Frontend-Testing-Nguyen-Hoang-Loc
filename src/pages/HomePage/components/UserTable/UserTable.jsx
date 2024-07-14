@@ -32,7 +32,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { ArrowUpDown } from "lucide-react";
+import {
+  ArrowUpDown,
+  ChevronFirst,
+  ChevronLast,
+  ChevronLeft,
+  ChevronRight,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Paper from "@/components/Paper/Paper";
 import useUserList from "@/hooks/useUserList";
@@ -44,6 +50,7 @@ import ExportToExcel from "./components/ExportToExcel";
 import AddNewUser from "./components/AddNewUser";
 import UserEditForm from "./components/UserEditForm";
 import axios from "axios";
+import { useToast } from "@/components/ui/use-toast";
 
 const formSchema = z
   .object({
@@ -73,11 +80,16 @@ const UserTable = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [filter, setFilter] = useState("");
   const [filteredData, setFilteredData] = useState([]);
+  const toast = useToast();
+  const startItem = (currentPage - 1) * pageSize + 1;
+  const endItem = Math.min(currentPage * pageSize, filteredData.length);
 
   useEffect(() => {
-    setData(userList);
-    if (filteredData.length === 0 && userList.length > 0) {
-      setFilteredData(userList);
+    if (userList !== data) {
+      setData(userList);
+      if (filteredData.length === 0 && userList.length > 0) {
+        setFilteredData(userList);
+      }
     }
   }, [userList]);
 
@@ -138,13 +150,18 @@ const UserTable = () => {
     try {
       await axios.delete(`${import.meta.env.VITE_SERVER_URL}/api/users/${id}`);
       mutate();
-      alert("User deleted successfully!");
+      toast({
+        description: "User deleted successfully!",
+      })
       const updatedData = data.filter((user) => user._id !== id);
       setData(updatedData);
       setFilteredData(applyFilters(updatedData));
     } catch (error) {
       console.error(error);
-      alert("Failed to delete user.");
+      toast({
+        variant: 'destructive',
+        description: "Failed to delete user.",
+      })
     }
   };
 
@@ -153,7 +170,7 @@ const UserTable = () => {
   return (
     <Paper className="w-[90%] mx-auto mt-5">
       <div className="flex justify-between">
-        <div>User</div>
+        <div className="text-2xl font-bold mb-5">User</div>
         <div>
           <ExportToExcel data={applyFilters(data)} />
           <AddNewUser formSchema={formSchema} mutate={mutate} />
@@ -181,9 +198,7 @@ const UserTable = () => {
             </SelectGroup>
           </SelectContent>
         </Select>
-        <Button variant="outline" onClick={handleSearch}>
-          Search
-        </Button>
+        <Button onClick={handleSearch}>Search</Button>
       </div>
 
       <div className="w-full">
@@ -251,7 +266,7 @@ const UserTable = () => {
                       <div className="flex items-center justify-center">
                         <Dialog>
                           <DialogTrigger asChild>
-                            <Button variant="outline" className="mr-5">
+                            <Button variant="link" className="mr-5">
                               Edit
                             </Button>
                           </DialogTrigger>
@@ -265,7 +280,9 @@ const UserTable = () => {
 
                         <AlertDialog>
                           <AlertDialogTrigger asChild>
-                            <Button variant="outline">Delete</Button>
+                            <Button variant="link">
+                              <span className="underline">Delete</span>
+                            </Button>
                           </AlertDialogTrigger>
                           <AlertDialogContent>
                             <AlertDialogHeader>
@@ -294,10 +311,7 @@ const UserTable = () => {
             </TableBody>
           </Table>
         </div>
-        <div className="flex items-center justify-end space-x-2 py-4">
-          <div className="flex-1 text-sm text-muted-foreground">
-            {paginatedData.length} of {filteredData.length} row(s) displayed.
-          </div>
+        <div className="flex items-center justify-end space-x-10 py-4">
           <div className="flex items-center space-x-2">
             <span>Rows per page:</span>
             <Select onValueChange={(value) => setPageSize(Number(value))}>
@@ -313,22 +327,43 @@ const UserTable = () => {
               </SelectContent>
             </Select>
           </div>
+          <div className="text-sm text-muted-foreground">
+            {startItem} - {endItem} of {filteredData.length}
+          </div>
           <div className="space-x-2">
             <Button
               variant="outline"
-              size="sm"
-              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+              size="icon"
+              onClick={() =>
+                setCurrentPage((prev) => Math.max(prev - pageSize, 1))
+              }
               disabled={currentPage === 1}>
-              Previous
+              <ChevronFirst />
             </Button>
             <Button
               variant="outline"
-              size="sm"
+              size="icon"
+              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+              disabled={currentPage === 1}>
+              <ChevronLeft />
+            </Button>
+            <Button
+              variant="outline"
+              size="icon"
               onClick={() =>
                 setCurrentPage((prev) => Math.min(prev + 1, totalPages))
               }
               disabled={currentPage === totalPages}>
-              Next
+              <ChevronRight />
+            </Button>
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={() =>
+                setCurrentPage((prev) => Math.min(prev + pageSize, totalPages))
+              }
+              disabled={currentPage === totalPages}>
+              <ChevronLast />
             </Button>
           </div>
         </div>
