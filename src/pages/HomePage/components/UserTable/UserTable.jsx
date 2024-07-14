@@ -176,7 +176,12 @@ const UserTable = () => {
     }
   };
 
-  if (isLoading) return <div>loading...</div>;
+  if (isLoading)
+    return (
+      <div className="h-screen flex items-center justify-center">
+        <span class="loading loading-spinner loading-md"></span>
+      </div>
+    );
 
   return (
     <Paper className="mx-auto w-[90%] mt-5">
