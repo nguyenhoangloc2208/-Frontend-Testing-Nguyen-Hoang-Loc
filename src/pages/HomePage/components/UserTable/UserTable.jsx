@@ -336,7 +336,7 @@ const UserTable = () => {
                           open={editDialogOpen}
                           onOpenChange={setEditDialogOpen}>
                           <DialogContent className="sm:max-w-[800px]">
-                            <DialogHeader>
+                            <DialogHeader className="hidden lg:block">
                               <DialogTitle>Edit user</DialogTitle>
                             </DialogHeader>
                             <UserEditForm user={user} formSchema={formSchema} />

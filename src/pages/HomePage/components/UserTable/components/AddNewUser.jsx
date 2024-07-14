@@ -33,11 +33,15 @@ import { useForm, Controller } from "react-hook-form";
 import PlaceHolderImage from "../../../../../assets/image/placeholdler_image.svg";
 import axios from "axios";
 import { useToast } from "@/components/ui/use-toast";
+import { Eye, EyeOff } from "lucide-react";
 
 const AddNewUser = ({ formSchema, mutate }) => {
   const { toast } = useToast();
   const [image, setImage] = useState(null);
   const [prevImage, setPrevImage] = useState(null);
+  const [isShowPassWord, setIsShowPassWord] = useState(false);
+  const [isShowConfirmPassWord, setIsShowConfirmPassWord] = useState(false);
+
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -136,16 +140,15 @@ const AddNewUser = ({ formSchema, mutate }) => {
       </DialogTrigger>
       <DialogContent className="sm:max-w-[800px]">
         <DialogHeader>
-          <DialogTitle>Add new user</DialogTitle>
+          <DialogTitle className="hidden lg:block">Add new user</DialogTitle>
         </DialogHeader>
         <div className="flex w-full space-x-4">
           <Form {...form}>
-            <div></div>
             <form
               onSubmit={form.handleSubmit(onSubmit)}
               className="space-y-4 w-full">
               <div className="flex w-full">
-                <div className="w-3/5 mr-10">
+                <div className="lg:w-3/5 w-full">
                   <FormField
                     control={form.control}
                     name="email"
@@ -260,13 +263,20 @@ const AddNewUser = ({ formSchema, mutate }) => {
                       <FormItem>
                         <FormLabel htmlFor="password">Password *</FormLabel>
                         <FormControl>
-                          <Input
-                            id="password"
-                            type="password"
-                            placeholder="Enter password"
-                            className="mb-5"
-                            {...field}
-                          />
+                          <div className="relative">
+                            <Input
+                              id="password"
+                              type={isShowPassWord ? "text" : "password"}
+                              placeholder="Enter password"
+                              className="mb-5"
+                              {...field}
+                            />
+                            <div
+                              onClick={() => setIsShowPassWord(!isShowPassWord)}
+                              className="absolute cursor-pointer top-2 right-2">
+                              {isShowPassWord ? <EyeOff /> : <Eye />}
+                            </div>
+                          </div>
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -281,11 +291,40 @@ const AddNewUser = ({ formSchema, mutate }) => {
                           Confirm Password *
                         </FormLabel>
                         <FormControl>
+                          <div className="relative">
+                            <Input
+                              id="confirmPassword"
+                              type={isShowConfirmPassWord ? "text" : "password"}
+                              placeholder="Confirm password"
+                              {...field}
+                            />
+                            <div
+                              onClick={() =>
+                                setIsShowConfirmPassWord(!isShowConfirmPassWord)
+                              }
+                              className="absolute cursor-pointer top-2 right-2">
+                              {isShowConfirmPassWord ? <EyeOff /> : <Eye />}
+                            </div>
+                          </div>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="avatar"
+                    className="lg:hidden"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel htmlFor="avatar">Profile Picture</FormLabel>
+                        <FormControl>
                           <Input
-                            id="confirmPassword"
-                            type="password"
-                            placeholder="Confirm password"
-                            {...field}
+                            type="file"
+                            accept="image/*"
+                            id="avatar"
+                            onChange={handleImageChange}
+                            {...field.avatar}
                           />
                         </FormControl>
                         <FormMessage />
@@ -294,10 +333,10 @@ const AddNewUser = ({ formSchema, mutate }) => {
                   />
                 </div>
                 <Separator
-                  className="w-[1px] mx-5 h-auto"
+                  className="hidden md:block w-[1px] mx-5 h-auto"
                   orientation="vertical"
                 />
-                <div className="w-1/3">
+                <div className="lg:w-1/3 lg:flex hidden">
                   <div className="flex flex-col items-center w-full gap-5">
                     <Label className="text-lg">Profile Picture</Label>
                     <div className="w-2/3 mb-4 bg-gray-200 overflow-hidden aspect-w-1 aspect-h-1 rounded-3xl">

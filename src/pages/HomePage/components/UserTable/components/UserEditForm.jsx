@@ -30,11 +30,15 @@ import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import PlaceHolderImage from "../../../../../assets/image/placeholdler_image.svg";
 import { useToast } from "@/components/ui/use-toast";
+import { Eye, EyeOff } from "lucide-react";
+import { Separator } from "@/components/ui/separator";
 
 const UserEditForm = ({ user, formSchema }) => {
   const [image, setImage] = useState(null);
   const toast = useToast();
   const [editProfilePicture, setEditProfilePicture] = useState(false);
+  const [isShowPassWord, setIsShowPassWord] = useState(false);
+  const [isShowConfirmPassWord, setIsShowConfirmPassWord] = useState(false);
 
   const form = useForm({
     resolver: zodResolver(formSchema),
@@ -113,7 +117,7 @@ const UserEditForm = ({ user, formSchema }) => {
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 w-full">
         <div className="flex justify-between">
           <div className="lg:w-2/3 w-full">
             <FormField
@@ -218,13 +222,20 @@ const UserEditForm = ({ user, formSchema }) => {
                 <FormItem>
                   <FormLabel htmlFor="password">Password *</FormLabel>
                   <FormControl>
-                    <Input
-                      id="password"
-                      type="password"
-                      placeholder="Enter password"
-                      className="mb-5"
-                      {...field}
-                    />
+                    <div className="relative">
+                      <Input
+                        id="password"
+                        type={isShowPassWord ? "text" : "password"}
+                        placeholder="Enter password"
+                        className="mb-5"
+                        {...field}
+                      />
+                      <div
+                        onClick={() => setIsShowPassWord(!isShowPassWord)}
+                        className="absolute cursor-pointer top-2 right-2">
+                        {isShowPassWord ? <EyeOff /> : <Eye />}
+                      </div>
+                    </div>
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -239,12 +250,21 @@ const UserEditForm = ({ user, formSchema }) => {
                     Confirm Password *
                   </FormLabel>
                   <FormControl>
-                    <Input
-                      id="confirmPassword"
-                      type="password"
-                      placeholder="Confirm password"
-                      {...field}
-                    />
+                    <div className="relative">
+                      <Input
+                        id="confirmPassword"
+                        type={isShowConfirmPassWord ? "text" : "password"}
+                        placeholder="Confirm password"
+                        {...field}
+                      />
+                      <div
+                        onClick={() =>
+                          setIsShowConfirmPassWord(!isShowConfirmPassWord)
+                        }
+                        className="absolute cursor-pointer top-2 right-2">
+                        {isShowConfirmPassWord ? <EyeOff /> : <Eye />}
+                      </div>
+                    </div>
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -271,7 +291,11 @@ const UserEditForm = ({ user, formSchema }) => {
               )}
             />
           </div>
-          <div className="hidden lg:flex w-1/3">
+          <Separator
+            className="hidden md:block w-[1px] mx-5 h-auto"
+            orientation="vertical"
+          />
+          <div className="hidden lg:flex lg:w-1/3">
             <div className="flex flex-col items-center w-full gap-5">
               <Label className="text-lg">Profile Picture</Label>
               <div className="w-2/3 mb-4 bg-gray-200 overflow-hidden aspect-w-1 aspect-h-1 rounded-3xl">
