@@ -44,7 +44,7 @@ const Header = () => {
                 />
               )}
             </SheetTrigger>
-            <SheetContent side="left" className="p-0 w-[72px]">
+            <SheetContent side="left" className="p-0 w-[72px] border-none">
               <Navbar menu={true} />
             </SheetContent>
           </Sheet>
