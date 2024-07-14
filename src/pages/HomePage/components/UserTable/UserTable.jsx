@@ -176,9 +176,9 @@ const UserTable = () => {
     }
   };
 
-  if (isLoading)
+  if (!isLoading)
     return (
-      <div className="h-screen flex items-center justify-center">
+      <div className="h-[90vh] w-full flex items-center justify-center">
         <span class="loading loading-spinner loading-md"></span>
       </div>
     );
