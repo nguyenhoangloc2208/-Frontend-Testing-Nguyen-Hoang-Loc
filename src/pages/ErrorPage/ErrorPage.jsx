@@ -14,7 +14,9 @@ export default function ErrorPage() {
 
   return (
     <div className="flex relative w-full">
-      <Navbar />
+      <div className="hidden md:block">
+        <Navbar menu={false} />
+      </div>
       <div id="error-page">
         <div className="h-screen w-screen bg-gray-100 flex items-center">
           <div className="container flex flex-col md:flex-row items-center justify-center px-5 text-gray-700">

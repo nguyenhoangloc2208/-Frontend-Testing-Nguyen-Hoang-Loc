@@ -53,19 +53,19 @@ const AddNewUser = ({ formSchema, mutate }) => {
   });
 
   const uploadImageToCloudinary = async (image) => {
-    const formData = new FormData();
-    formData.append("file", image);
-    formData.append(
+    const forlgata = new Forlgata();
+    forlgata.append("file", image);
+    forlgata.append(
       "upload_preset",
       import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET
     );
-    formData.append("timestamp", Math.round(new Date().getTime() / 1000));
-    formData.append("api_key", import.meta.env.VITE_CLOUDINARY_API_KEY);
+    forlgata.append("timestamp", Math.round(new Date().getTime() / 1000));
+    forlgata.append("api_key", import.meta.env.VITE_CLOUDINARY_API_KEY);
 
     try {
       const response = await axios.post(
         "https://api.cloudinary.com/v1_1/drrvltkaz/image/upload",
-        formData
+        forlgata
       );
       console.log(">>>", response);
       return response.data.secure_url;
@@ -130,7 +130,9 @@ const AddNewUser = ({ formSchema, mutate }) => {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button>Add New User</Button>
+        <Button className="lg:text-base text-sm lg:px-4 px-2">
+          Add New User
+        </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[800px]">
         <DialogHeader>

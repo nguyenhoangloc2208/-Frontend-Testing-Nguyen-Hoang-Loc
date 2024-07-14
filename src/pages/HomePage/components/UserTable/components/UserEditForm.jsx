@@ -34,6 +34,7 @@ import { useToast } from "@/components/ui/use-toast";
 const UserEditForm = ({ user, formSchema }) => {
   const [image, setImage] = useState(null);
   const toast = useToast();
+  const [editProfilePicture, setEditProfilePicture] = useState(false);
 
   const form = useForm({
     resolver: zodResolver(formSchema),
@@ -114,7 +115,7 @@ const UserEditForm = ({ user, formSchema }) => {
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
         <div className="flex justify-between">
-          <div className="w-2/3">
+          <div className="lg:w-2/3 w-full">
             <FormField
               control={form.control}
               name="email"
@@ -249,8 +250,28 @@ const UserEditForm = ({ user, formSchema }) => {
                 </FormItem>
               )}
             />
+            <FormField
+              control={form.control}
+              name="avatar"
+              className="lg:hidden"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel htmlFor="avatar">Profile Picture</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="file"
+                      accept="image/*"
+                      id="avatar"
+                      onChange={handleImageChange}
+                      {...field.avatar}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
           </div>
-          <div className="w-1/3">
+          <div className="hidden lg:flex w-1/3">
             <div className="flex flex-col items-center w-full gap-5">
               <Label className="text-lg">Profile Picture</Label>
               <div className="w-2/3 mb-4 bg-gray-200 overflow-hidden aspect-w-1 aspect-h-1 rounded-3xl">
@@ -268,7 +289,9 @@ const UserEditForm = ({ user, formSchema }) => {
                   />
                 </div>
               </div>
-              <Dialog>
+              <Dialog
+                open={editProfilePicture}
+                onOpenChange={setEditProfilePicture}>
                 <DialogTrigger asChild>
                   <Button variant="outline">Change Image</Button>
                 </DialogTrigger>
@@ -296,7 +319,7 @@ const UserEditForm = ({ user, formSchema }) => {
             </div>
           </div>
         </div>
-        <DialogFooter className="sm:justify-start">
+        <DialogFooter className="justify-start">
           <Button type="submit">Confirm</Button>
           <DialogClose asChild>
             <Button variant="outline" type="button">

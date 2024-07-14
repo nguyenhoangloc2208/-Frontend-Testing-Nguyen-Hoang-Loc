@@ -44,23 +44,25 @@ const icons = [
   },
 ];
 
-const Navbar = () => {
+const Navbar = ({ menu }) => {
   const navigate = useNavigate();
   const location = useLocation();
   return (
     <aside className="h-screen sticky top-0 left-0 bg-gray-100">
       <nav>
         <ul>
-          <li className="p-6 flex items-center cursor-pointer bg-gray-500">
-            <IconMenu className="fill-white text-2xl" />
-          </li>
+          {!menu && (
+            <li className="flex p-6 items-center cursor-pointer bg-gray-500">
+              <IconMenu className=" fill-white text-2xl" />
+            </li>
+          )}
           {Array.isArray(icons) &&
             icons.length > 0 &&
             icons.map((item, index) => (
               <li
                 key={index}
                 onClick={() => navigate(item.link)}
-                className={`p-4 flex items-center cursor-pointer ${item.bg} fill-black text-2xl hover:bg-gray-300`}>
+                className={`p-4 items-center cursor-pointer ${item.bg} fill-black text-2xl hover:bg-gray-300`}>
                 <div
                   className={`w-full h-full p-2 rounded-lg ${
                     location.pathname === "/" + item.link && "bg-gray-300"

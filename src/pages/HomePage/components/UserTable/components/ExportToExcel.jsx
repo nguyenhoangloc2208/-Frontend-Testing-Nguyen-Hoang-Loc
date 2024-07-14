@@ -39,7 +39,9 @@ const ExportToExcel = ({ data }) => {
   };
 
   return (
-    <Button className="mr-10" onClick={handleExportToExcel}>
+    <Button
+      className="lg:mr-10 mr-2 lg:text-base text-sm px-2 lg:px-4"
+      onClick={handleExportToExcel}>
       Export to Excel
     </Button>
   );
