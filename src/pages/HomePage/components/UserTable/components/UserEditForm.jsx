@@ -30,52 +30,66 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import PlaceHolderImage from "../../../../../assets/image/placeholdler_image.svg";
-import { useToast } from "@/components/ui/use-toast";
 import { Eye, EyeOff } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
+import { z } from "zod";
+import axios from "axios";
+import { useToast } from "@/components/ui/use-toast";
 
-const UserEditForm = ({ user, formSchema }) => {
+const formSchema = z.object({
+  email: z.string().email("Invalid email address."),
+  role: z.enum(["admin", "user", "editor"]),
+  phoneNumber: z.string().min(10, {
+    message: "Phone number must be at least 10 digits.",
+  }),
+  firstName: z.string().min(1, { message: "First name is required." }),
+  lastName: z.string().min(1, { message: "Last name is required." }),
+  password: z.string().min(8, "Password must be at least 8 characters."),
+  confirmPassword: z.string(),
+  avatar: z.string().optional(),
+  isVerified: z.boolean().optional(),
+});
+
+const UserEditForm = ({ user, isOpen, setIsOpen }) => {
   const [image, setImage] = useState(null);
+  const [userEdit, setUserEdit] = useState(user);
   const toast = useToast();
   const [editProfilePicture, setEditProfilePicture] = useState(false);
   const [isShowPassWord, setIsShowPassWord] = useState(false);
-  const [isShowConfirmPassWord, setIsShowConfirmPassWord] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      email: user.email || "",
-      role: user.role || "user",
-      phone: user.phoneNumber || "",
-      firstName: user.firstName || "",
-      lastName: user.lastName || "",
-      password: "",
-      confirmPassword: "",
-      avatar: user.avatar || "",
+      email: userEdit.email || "",
+      role: userEdit.role || "user",
+      phoneNumber: userEdit.phoneNumber || "",
+      firstName: userEdit.firstName || "",
+      lastName: userEdit.lastName || "",
+      password: userEdit.password || "",
+      avatar: userEdit.avatar || "",
     },
   });
 
   useEffect(() => {
-    console.log(user);
     form.reset({
-      email: user.email || "",
-      role: user.role || "user",
-      phone: user.phoneNumber || "",
-      firstName: user.firstName || "",
-      lastName: user.lastName || "",
-      password: user.password || "",
-      confirmPassword: user.password || "",
-      avatar: user.avatar || "",
+      email: userEdit.email || "",
+      role: userEdit.role || "user",
+      phoneNumber: userEdit.phoneNumber || "",
+      firstName: userEdit.firstName || "",
+      lastName: userEdit.lastName || "",
+      password: userEdit.password || "",
+      avatar: userEdit.avatar || "",
     });
-  }, [user, form]);
+  }, [userEdit, form]);
 
   const onSubmit = async (value) => {
+    console.log(value);
     setIsLoading(true);
     try {
       let avatarUrl = value.avatar;
 
-      if (avatarUrl && avatarUrl !== user.avatar) {
+      if (avatarUrl && avatarUrl !== userEdit.avatar) {
         const uploadedImageUrl = await uploadImageToCloudinary(avatarUrl);
         if (uploadedImageUrl) {
           avatarUrl = uploadedImageUrl;
@@ -83,21 +97,19 @@ const UserEditForm = ({ user, formSchema }) => {
       }
 
       await axios.put(
-        `${import.meta.env.VITE_SERVER_URL}/api/users/${user.id}`,
+        `${import.meta.env.VITE_SERVER_URL}/api/users/${userEdit._id}`,
         {
           username: value.firstName + value.lastName,
           password: value.password,
           email: value.email,
           firstName: value.firstName,
           lastName: value.lastName,
-          phoneNumber: value.phone,
+          phoneNumber: value.phoneNumber,
           role: value.role,
           avatar: avatarUrl ? avatarUrl : "",
         }
       );
-      toast({
-        description: "Success!",
-      });
+      console.log("ok");
     } catch (error) {
       console.error(error);
     }
@@ -119,8 +131,13 @@ const UserEditForm = ({ user, formSchema }) => {
     setImage(null);
   };
 
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setUserEdit((prev) => ({ ...prev, [name]: value }));
+  };
+
   return (
-    <Dialog>
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
         <Button variant="link" className="mr-5">
           Edit
@@ -128,7 +145,7 @@ const UserEditForm = ({ user, formSchema }) => {
       </DialogTrigger>
       {isLoading ? (
         <DialogContent className="sm:max-w-[800px] flex items-center justify-center">
-          <span class="loading loading-spinner loading-lg"></span>
+          <span className="loading loading-spinner loading-lg"></span>
         </DialogContent>
       ) : (
         <DialogContent className="sm:max-w-[800px]">
@@ -153,6 +170,10 @@ const UserEditForm = ({ user, formSchema }) => {
                             id="email"
                             placeholder="example@example.com"
                             {...field}
+                            onChange={(e) => {
+                              field.onChange(e);
+                              handleChange(e);
+                            }}
                           />
                         </FormControl>
                         <FormMessage />
@@ -177,7 +198,7 @@ const UserEditForm = ({ user, formSchema }) => {
                             <SelectGroup>
                               <SelectItem value="admin">Admin</SelectItem>
                               <SelectItem value="editor">Editor</SelectItem>
-                              <SelectItem value="user">User</SelectItem>
+                              <SelectItem value="userEdit">userEdit</SelectItem>
                             </SelectGroup>
                           </SelectContent>
                         </Select>
@@ -187,15 +208,21 @@ const UserEditForm = ({ user, formSchema }) => {
                   />
                   <FormField
                     control={form.control}
-                    name="phone"
+                    name="phoneNumber"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel htmlFor="phone">Phone Number *</FormLabel>
+                        <FormLabel htmlFor="phoneNumber">
+                          Phone Number *
+                        </FormLabel>
                         <FormControl>
                           <Input
-                            id="phone"
+                            id="phoneNumber"
                             placeholder="123-456-7890"
                             {...field}
+                            onChange={(e) => {
+                              field.onChange(e);
+                              handleChange(e);
+                            }}
                           />
                         </FormControl>
                         <FormMessage />
@@ -217,6 +244,10 @@ const UserEditForm = ({ user, formSchema }) => {
                               id="firstName"
                               placeholder="John"
                               {...field}
+                              onChange={(e) => {
+                                field.onChange(e);
+                                handleChange(e);
+                              }}
                             />
                           </FormControl>
                           <FormMessage />
@@ -235,6 +266,10 @@ const UserEditForm = ({ user, formSchema }) => {
                               id="lastName"
                               placeholder="Doe"
                               {...field}
+                              onChange={(e) => {
+                                field.onChange(e);
+                                handleChange(e);
+                              }}
                             />
                           </FormControl>
                           <FormMessage />
@@ -256,6 +291,10 @@ const UserEditForm = ({ user, formSchema }) => {
                               placeholder="Enter password"
                               className="mb-5"
                               {...field}
+                              onChange={(e) => {
+                                field.onChange(e);
+                                handleChange(e);
+                              }}
                             />
                             <div
                               onClick={() => setIsShowPassWord(!isShowPassWord)}
@@ -268,48 +307,22 @@ const UserEditForm = ({ user, formSchema }) => {
                       </FormItem>
                     )}
                   />
-                  <FormField
-                    control={form.control}
-                    name="confirmPassword"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel htmlFor="confirmPassword">
-                          Confirm Password *
-                        </FormLabel>
-                        <FormControl>
-                          <div className="relative">
-                            <Input
-                              id="confirmPassword"
-                              type={isShowConfirmPassWord ? "text" : "password"}
-                              placeholder="Confirm password"
-                              {...field}
-                            />
-                            <div
-                              onClick={() =>
-                                setIsShowConfirmPassWord(!isShowConfirmPassWord)
-                              }
-                              className="absolute cursor-pointer top-2 right-2">
-                              {isShowConfirmPassWord ? <EyeOff /> : <Eye />}
-                            </div>
-                          </div>
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+
                   <FormField
                     control={form.control}
                     name="avatar"
-                    className="lg:hidden"
                     render={({ field }) => (
-                      <FormItem>
+                      <FormItem className="lg:hidden">
                         <FormLabel htmlFor="avatar">Profile Picture</FormLabel>
                         <FormControl>
                           <Input
                             type="file"
                             accept="image/*"
                             id="avatar"
-                            onChange={handleImageChange}
+                            onChange={(e) => {
+                              handleImageChange(e);
+                              field.onChange(e);
+                            }}
                             {...field.avatar}
                           />
                         </FormControl>
@@ -319,7 +332,7 @@ const UserEditForm = ({ user, formSchema }) => {
                   />
                 </div>
                 <Separator
-                  className="hidden md:block w-[1px] mx-5 h-auto"
+                  className="hidden lg:block w-[1px] mx-5 h-auto"
                   orientation="vertical"
                 />
                 <div className="hidden lg:flex lg:w-1/3">
@@ -331,8 +344,8 @@ const UserEditForm = ({ user, formSchema }) => {
                           src={
                             image
                               ? image
-                              : user.avatar
-                              ? user.avatar
+                              : userEdit.avatar
+                              ? userEdit.avatar
                               : PlaceHolderImage
                           }
                           alt="Profile"
@@ -371,7 +384,7 @@ const UserEditForm = ({ user, formSchema }) => {
                 </div>
               </div>
               <DialogFooter className="justify-start">
-                <Button type="submit">Confirm</Button>
+                <Button onClick={() => onSubmit(userEdit)}>Confirm</Button>
                 <DialogClose asChild>
                   <Button variant="outline" type="button">
                     Cancel

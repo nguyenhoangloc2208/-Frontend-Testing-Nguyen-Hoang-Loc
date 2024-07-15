@@ -142,7 +142,7 @@ const AddNewUser = ({ formSchema, mutate }) => {
       </DialogTrigger>
       {isLoading ? (
         <DialogContent className="sm:max-w-[800px] flex items-center justify-center">
-          <span class="loading loading-spinner loading-lg"></span>
+          <span className="loading loading-spinner loading-lg"></span>
         </DialogContent>
       ) : (
         <DialogContent className="sm:max-w-[800px]">

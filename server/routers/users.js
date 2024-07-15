@@ -97,10 +97,7 @@ router.put("/:id", async (req, res) => {
     user.phoneNumber = phoneNumber;
     user.role = role;
     user.avatar = avatar;
-
-    if (password) {
-      user.password = await bcrypt.hash(password, 10);
-    }
+    user.password = password;
 
     await user.save();
     res.json(user);

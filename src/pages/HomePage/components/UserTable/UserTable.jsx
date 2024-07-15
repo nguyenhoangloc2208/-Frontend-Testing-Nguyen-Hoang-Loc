@@ -183,7 +183,7 @@ const UserTable = () => {
   if (isLoading)
     return (
       <div className="h-[90vh] w-full flex items-center justify-center">
-        <span class="loading loading-spinner loading-md"></span>
+        <span className="loading loading-spinner loading-md"></span>
       </div>
     );
 
@@ -325,7 +325,6 @@ const UserTable = () => {
                           editDialogOpen={editDialogOpen}
                           setEditDialogOpen={setEditDialogOpen}
                           user={user}
-                          formSchema={formSchema}
                         />
 
                         <Dialog
@@ -335,7 +334,11 @@ const UserTable = () => {
                             <DialogHeader className="hidden lg:block">
                               <DialogTitle>Edit user</DialogTitle>
                             </DialogHeader>
-                            <UserEditForm user={user} formSchema={formSchema} />
+                            <UserEditForm
+                              user={user}
+                              isOpen={editDialogOpen}
+                              setIsOpen={setEditDialogOpen}
+                            />
                           </DialogContent>
                         </Dialog>
 
