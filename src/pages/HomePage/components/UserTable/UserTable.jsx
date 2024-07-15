@@ -94,18 +94,17 @@ const UserTable = () => {
   const endItem = Math.min(currentPage * pageSize, filteredData.length);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
     if (userList !== data) {
       setData(userList);
-      if (filteredData.length === 0 && userList.length > 0) {
-        setFilteredData(userList);
-      }
+      setFilteredData(applyFilters(userList));
     }
   }, [userList]);
 
   const applyFilters = (dataToFilter) => {
-    return dataToFilter.filter((user) => {
+    let filtered = dataToFilter.filter((user) => {
       return (
         (user.email.toLowerCase().includes(filter.toLowerCase()) ||
           user.username.toLowerCase().includes(filter.toLowerCase()) ||
@@ -115,38 +114,43 @@ const UserTable = () => {
         (!roleFilter || user.role === roleFilter)
       );
     });
+
+    if (sorting.key) {
+      filtered.sort((a, b) => {
+        if (a[sorting.key] < b[sorting.key])
+          return sorting.direction === "asc" ? -1 : 1;
+        if (a[sorting.key] > b[sorting.key])
+          return sorting.direction === "asc" ? 1 : -1;
+        return 0;
+      });
+    }
+
+    return filtered;
   };
 
   const handleSort = (key) => {
     const direction = sorting.direction === "asc" ? "desc" : "asc";
     setSorting({ key, direction });
 
-    const sortedData = [...data].sort((a, b) => {
-      if (a[key] < b[key]) return direction === "asc" ? -1 : 1;
-      if (a[key] > b[key]) return direction === "asc" ? 1 : -1;
-      return 0;
-    });
-
-    setData(sortedData);
-    setFilteredData(applyFilters(sortedData));
+    const sortedFilteredData = applyFilters(data);
+    setFilteredData(sortedFilteredData);
   };
 
   const handleFilter = (event) => {
-    setFilter(event.target.value);
+    setSearchTerm(event.target.value);
   };
 
   const handleSearch = () => {
+    setFilter(searchTerm);
     setCurrentPage(1);
-    setFilteredData(applyFilters(sortedData));
+    const filtered = applyFilters(data);
+    setFilteredData(filtered);
   };
 
   const handleRoleFilter = (value) => {
-    setRoleFilter(value == "all" ? "" : value);
-    setFilteredData(
-      data.filter((user) => {
-        return !value || user.role === value;
-      })
-    );
+    setRoleFilter(value === "all" ? "" : value);
+    const filtered = applyFilters(data);
+    setFilteredData(filtered);
     setCurrentPage(1);
   };
 
@@ -197,7 +201,7 @@ const UserTable = () => {
       <div className="flex w-full items-center mb-4 lg:gap-10 gap-5">
         <Input
           placeholder="Search User ..."
-          value={filter}
+          value={searchTerm}
           onChange={handleFilter}
           className="max-w-sm"
         />
@@ -369,6 +373,11 @@ const UserTable = () => {
                 ))}
             </TableBody>
           </Table>
+          {paginatedData && paginatedData.length == 0 && (
+            <div className="w-full p-8 text-xl font-semibold text-center">
+              Nothing to show!
+            </div>
+          )}
         </div>
         <div className="flex-col w-full md:flex-row lg:flex-row flex items-center justify-end lg:space-x-10 py-4">
           <div className="flex items-center space-x-2">
