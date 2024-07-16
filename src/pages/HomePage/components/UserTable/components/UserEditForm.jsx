@@ -315,7 +315,7 @@ const UserEditForm = ({ user, setEditUser, mutate }) => {
                     control={form.control}
                     name="avatar"
                     render={({ field }) => (
-                      <FormItem className="n">
+                      <FormItem className="lg:hidden">
                         <FormLabel htmlFor="avatar">Profile Picture</FormLabel>
                         <FormControl>
                           <Input
