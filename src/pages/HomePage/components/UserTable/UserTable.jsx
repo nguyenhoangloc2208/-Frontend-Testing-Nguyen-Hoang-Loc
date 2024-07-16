@@ -11,6 +11,7 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogTrigger,
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import {
@@ -89,12 +90,12 @@ const UserTable = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [filter, setFilter] = useState("");
   const [filteredData, setFilteredData] = useState([]);
-  const toast = useToast();
+  const { toast } = useToast();
   const startItem = (currentPage - 1) * pageSize + 1;
   const endItem = Math.min(currentPage * pageSize, filteredData.length);
-  const [editDialogOpen, setEditDialogOpen] = useState(false);
-  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
+  const [editUser, setEditUser] = useState(null);
+  const [deleteUser, setDeleteUser] = useState(null);
 
   useEffect(() => {
     if (userList !== data) {
@@ -306,7 +307,7 @@ const UserTable = () => {
                           <DropdownMenuItem>
                             <Label
                               className="font-normal"
-                              onClick={() => setEditDialogOpen(true)}>
+                              onClick={() => setEditUser(user)}>
                               Edit user
                             </Label>
                           </DropdownMenuItem>
@@ -314,46 +315,34 @@ const UserTable = () => {
                           <DropdownMenuItem>
                             <Label
                               className="font-normal"
-                              onClick={() => setDeleteDialogOpen(true)}>
+                              onClick={() => setDeleteUser(user)}>
                               Delete user
                             </Label>
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
-                      <div className="hidden md:flex lg:flex items-center justify-center">
-                        <UserEditForm
-                          editDialogOpen={editDialogOpen}
-                          setEditDialogOpen={setEditDialogOpen}
-                          user={user}
-                        />
-
+                      {editUser && (
                         <Dialog
-                          open={editDialogOpen}
-                          onOpenChange={setEditDialogOpen}>
-                          <DialogContent className="sm:max-w-[800px]">
-                            <DialogHeader className="hidden lg:block">
-                              <DialogTitle>Edit user</DialogTitle>
-                            </DialogHeader>
+                          open={!!editUser}
+                          onOpenChange={() => setEditUser(null)}>
+                          <DialogContent>
                             <UserEditForm
-                              user={user}
-                              isOpen={editDialogOpen}
-                              setIsOpen={setEditDialogOpen}
+                              user={editUser}
+                              setEditUser={setEditUser}
+                              mutate={mutate}
                             />
                           </DialogContent>
                         </Dialog>
-
+                      )}
+                      {deleteUser && (
                         <AlertDialog
-                          open={deleteDialogOpen}
-                          onOpenChange={setDeleteDialogOpen}>
-                          <AlertDialogTrigger asChild>
-                            <Button variant="link">
-                              <span className="underline">Delete</span>
-                            </Button>
-                          </AlertDialogTrigger>
+                          open={deleteUser}
+                          onOpenChange={() => setDeleteUser(null)}>
                           <AlertDialogContent>
                             <AlertDialogHeader>
                               <AlertDialogTitle>
-                                Are you absolutely sure?
+                                Are you absolutely sure want to delete{" "}
+                                {deleteUser.email}
                               </AlertDialogTitle>
                               <AlertDialogDescription>
                                 This action cannot be undone. This will
@@ -370,6 +359,19 @@ const UserTable = () => {
                             </AlertDialogFooter>
                           </AlertDialogContent>
                         </AlertDialog>
+                      )}
+                      <div className="hidden md:flex lg:flex items-center justify-center">
+                        <Button
+                          onClick={() => setEditUser(user)}
+                          variant="link"
+                          className="mr-5">
+                          Edit
+                        </Button>
+                        <Button
+                          onClick={() => setDeleteUser(user)}
+                          variant="link">
+                          <span className="underline">Delete</span>
+                        </Button>
                       </div>
                     </TableCell>
                   </TableRow>

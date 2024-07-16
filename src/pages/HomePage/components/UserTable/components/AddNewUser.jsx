@@ -42,6 +42,7 @@ const AddNewUser = ({ formSchema, mutate }) => {
   const [isShowPassWord, setIsShowPassWord] = useState(false);
   const [isShowConfirmPassWord, setIsShowConfirmPassWord] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   const form = useForm({
     resolver: zodResolver(formSchema),
@@ -72,7 +73,6 @@ const AddNewUser = ({ formSchema, mutate }) => {
         "https://api.cloudinary.com/v1_1/drrvltkaz/image/upload",
         formdata
       );
-      console.log(">>>", response);
       return response.data.secure_url;
     } catch (error) {
       console.error("Error uploading image to Cloudinary:", error);
@@ -106,12 +106,15 @@ const AddNewUser = ({ formSchema, mutate }) => {
         description: "Success!",
       });
       mutate();
+      setIsDialogOpen(false);
     } catch (error) {
       console.error(error);
       toast({
         variant: "destructive",
         title: "Uh oh! Something went wrong.",
-        description: "There was a problem with your request.",
+        description:
+          error.response?.data.message ||
+          "There was a problem with your request.",
       });
     }
     setIsLoading(false);
@@ -134,7 +137,7 @@ const AddNewUser = ({ formSchema, mutate }) => {
   };
 
   return (
-    <Dialog>
+    <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
       <DialogTrigger asChild>
         <Button className="lg:text-base text-sm lg:px-4 px-2">
           Add New User

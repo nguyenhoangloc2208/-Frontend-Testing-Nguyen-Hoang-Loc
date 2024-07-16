@@ -50,10 +50,10 @@ const formSchema = z.object({
   isVerified: z.boolean().optional(),
 });
 
-const UserEditForm = ({ user, isOpen, setIsOpen }) => {
+const UserEditForm = ({ user, setEditUser, mutate }) => {
   const [image, setImage] = useState(null);
   const [userEdit, setUserEdit] = useState(user);
-  const toast = useToast();
+  const { toast } = useToast();
   const [editProfilePicture, setEditProfilePicture] = useState(false);
   const [isShowPassWord, setIsShowPassWord] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -83,8 +83,8 @@ const UserEditForm = ({ user, isOpen, setIsOpen }) => {
     });
   }, [userEdit, form]);
 
-  const onSubmit = async (value) => {
-    console.log(value);
+  const onSubmit = async () => {
+    const value = form.getValues();
     setIsLoading(true);
     try {
       let avatarUrl = value.avatar;
@@ -109,7 +109,11 @@ const UserEditForm = ({ user, isOpen, setIsOpen }) => {
           avatar: avatarUrl ? avatarUrl : "",
         }
       );
-      console.log("ok");
+      toast({
+        description: "Edit user successfully!",
+      });
+      mutate();
+      setEditUser(null);
     } catch (error) {
       console.error(error);
     }
@@ -122,13 +126,15 @@ const UserEditForm = ({ user, isOpen, setIsOpen }) => {
       const reader = new FileReader();
       reader.onloadend = () => {
         setImage(reader.result);
+        form.setValue("avatar", reader.result);
+        setUserEdit((prev) => ({ ...prev, avatar: reader.result }));
       };
       reader.readAsDataURL(file);
     }
   };
 
   const handleCancelImageChange = () => {
-    setImage(null);
+    setImage(userEdit.avatar || null);
   };
 
   const handleChange = (e) => {
@@ -137,12 +143,7 @@ const UserEditForm = ({ user, isOpen, setIsOpen }) => {
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogTrigger asChild>
-        <Button variant="link" className="mr-5">
-          Edit
-        </Button>
-      </DialogTrigger>
+    <>
       {isLoading ? (
         <DialogContent className="sm:max-w-[800px] flex items-center justify-center">
           <span className="loading loading-spinner loading-lg"></span>
@@ -187,8 +188,10 @@ const UserEditForm = ({ user, isOpen, setIsOpen }) => {
                       <FormItem>
                         <FormLabel htmlFor="role">Role *</FormLabel>
                         <Select
-                          onValueChange={field.onChange}
-                          defaultValue={field.value}>
+                          onValueChange={(value) =>
+                            form.setValue("role", value)
+                          }
+                          value={field.value}>
                           <FormControl>
                             <SelectTrigger>
                               <SelectValue placeholder="Select a role" />
@@ -198,7 +201,7 @@ const UserEditForm = ({ user, isOpen, setIsOpen }) => {
                             <SelectGroup>
                               <SelectItem value="admin">Admin</SelectItem>
                               <SelectItem value="editor">Editor</SelectItem>
-                              <SelectItem value="userEdit">userEdit</SelectItem>
+                              <SelectItem value="user">User</SelectItem>
                             </SelectGroup>
                           </SelectContent>
                         </Select>
@@ -312,7 +315,7 @@ const UserEditForm = ({ user, isOpen, setIsOpen }) => {
                     control={form.control}
                     name="avatar"
                     render={({ field }) => (
-                      <FormItem className="lg:hidden">
+                      <FormItem className="n">
                         <FormLabel htmlFor="avatar">Profile Picture</FormLabel>
                         <FormControl>
                           <Input
@@ -323,7 +326,6 @@ const UserEditForm = ({ user, isOpen, setIsOpen }) => {
                               handleImageChange(e);
                               field.onChange(e);
                             }}
-                            {...field.avatar}
                           />
                         </FormControl>
                         <FormMessage />
@@ -361,7 +363,7 @@ const UserEditForm = ({ user, isOpen, setIsOpen }) => {
                       </DialogTrigger>
                       <DialogContent>
                         <DialogTitle>Change Profile Picture</DialogTitle>
-                        <input
+                        <Input
                           type="file"
                           accept="image/*"
                           onChange={handleImageChange}
@@ -395,7 +397,7 @@ const UserEditForm = ({ user, isOpen, setIsOpen }) => {
           </Form>
         </DialogContent>
       )}
-    </Dialog>
+    </>
   );
 };
 
